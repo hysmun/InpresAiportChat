@@ -5,17 +5,40 @@
  */
 package inpresairportchat;
 
+import IACOP.*;
+import java.util.Date;
+
 /**
  *
  * @author 'Toine
  */
 public class AppIAC extends javax.swing.JFrame {
 
+    Client cli;
+    int PORTTCP = 50000;
+    String ipTCP = "127.0.0.1";
+    Thread th;
+    boolean run = false;
     /**
      * Creates new form AppIAC
      */
     public AppIAC() {
         initComponents();
+        cli = new Client(ipTCP,PORTTCP);
+        write("client connecter");
+        th = new Thread()
+        {
+            public void run()
+            {
+                //to do here
+                while(run == true)
+                {
+                    String tmp;
+                    tmp = cli.read();
+                    write(tmp);
+                }
+            }
+        };
     }
 
     /**
@@ -31,6 +54,9 @@ public class AppIAC extends javax.swing.JFrame {
         chatTA = new javax.swing.JTextArea();
         msgTF = new javax.swing.JTextField();
         senButton = new javax.swing.JButton();
+        connectButton = new javax.swing.JButton();
+        connectCB = new javax.swing.JCheckBox();
+        decoButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -39,9 +65,28 @@ public class AppIAC extends javax.swing.JFrame {
         chatTA.setRows(5);
         jScrollPane1.setViewportView(chatTA);
 
-        msgTF.setText("jTextField1");
-
         senButton.setText("Send");
+        senButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                senButtonMouseClicked(evt);
+            }
+        });
+
+        connectButton.setText("Connect");
+        connectButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                connectButtonMouseClicked(evt);
+            }
+        });
+
+        connectCB.setText("Connecté ?");
+
+        decoButton.setText("Deco");
+        decoButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                decoButtonMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -53,14 +98,25 @@ public class AppIAC extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
                     .addComponent(msgTF))
                 .addGap(18, 18, 18)
-                .addComponent(senButton, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(115, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(senButton, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(decoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(connectCB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(112, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 402, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(connectButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(decoButton)
+                        .addGap(26, 26, 26)
+                        .addComponent(connectCB)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(msgTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -71,6 +127,40 @@ public class AppIAC extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void senButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_senButtonMouseClicked
+        // TODO add your handling code here:
+        IACOPmsg msg = new IACOPmsg(IACOP.POST_EVENT,msgTF.getText());
+        write(msg.toString());
+        //cli.write(msg);
+        msgTF.setText("");
+    }//GEN-LAST:event_senButtonMouseClicked
+
+    private void connectButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connectButtonMouseClicked
+        // TODO add your handling code here:
+        if(cli == null)
+        {
+            cli = new Client(ipTCP, PORTTCP);
+            write("client connecter");
+        }
+        run = true;
+        
+        th.start();
+    }//GEN-LAST:event_connectButtonMouseClicked
+
+    private void decoButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_decoButtonMouseClicked
+        // TODO add your handling code here:
+        run = false;
+        cli.close();
+        cli = null;
+    }//GEN-LAST:event_decoButtonMouseClicked
+
+    public void write(String tmp)
+    {
+        Date d = new Date();
+        String s = ""+d+" "+tmp+"\n";
+        chatTA.append(s);
+        System.out.print(s);
+    }
     /**
      * @param args the command line arguments
      */
@@ -108,6 +198,9 @@ public class AppIAC extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea chatTA;
+    private javax.swing.JButton connectButton;
+    private javax.swing.JCheckBox connectCB;
+    private javax.swing.JButton decoButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField msgTF;
     private javax.swing.JButton senButton;

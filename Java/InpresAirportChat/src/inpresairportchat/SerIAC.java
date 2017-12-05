@@ -5,17 +5,40 @@
  */
 package inpresairportchat;
 
+import IACOP.Server;
+import java.util.Date;
+
 /**
  *
  * @author 'Toine
  */
 public class SerIAC extends javax.swing.JFrame {
 
+    Server ser;
+    int PORTTCP = 50000;
+    Thread th;
+    boolean run = false;
     /**
      * Creates new form SerIAC
      */
     public SerIAC() {
         initComponents();
+        ser = new Server(PORTTCP);
+        write("serveur lancer");
+        th = new Thread()
+        {
+            public void run()
+            {
+                //to do here
+                while(run == true)
+                {
+                    String tmp;
+                    tmp = ser.read();
+                    write(tmp);
+                    ser.write(tmp);
+                }
+            }
+        };
     }
 
     /**
@@ -40,8 +63,18 @@ public class SerIAC extends javax.swing.JFrame {
         jScrollPane1.setViewportView(chatTA);
 
         startButton.setText("Start");
+        startButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                startButtonMouseClicked(evt);
+            }
+        });
 
         StopButton.setText("Stop");
+        StopButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StopButtonMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -73,6 +106,29 @@ public class SerIAC extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void startButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startButtonMouseClicked
+        // TODO add your handling code here:
+        write("serveur accept");
+        ser.accept();
+        write("accept OK");
+        run = true;
+        th.start();
+    }//GEN-LAST:event_startButtonMouseClicked
+
+    private void StopButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_StopButtonMouseClicked
+        // TODO add your handling code here:
+        run = false;
+        ser.Sclose();
+    }//GEN-LAST:event_StopButtonMouseClicked
+
+    
+    public void write(String tmp)
+    {
+        Date d = new Date();
+        String s = ""+d+" "+tmp+"\n";
+        chatTA.append(s);
+        System.out.print(s);
+    }
     /**
      * @param args the command line arguments
      */

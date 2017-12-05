@@ -7,6 +7,7 @@ package IACOP;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -16,12 +17,13 @@ import java.util.logging.Logger;
  *
  * @author 'Toine
  */
-public class Client {
+public class Client{
     public Socket cliSockTCP = null;
     public DataInputStream dis = null;
     public DataOutputStream dos = null;
     public String ipTCP;
     public int portTCP;
+    
     
     public Client(String ip, int port)
     {
@@ -40,7 +42,9 @@ public class Client {
     {
         byte[] buf = s.getBytes();
         try {
+            dos.writeInt(buf.length);
             dos.write(buf);
+            dos.flush();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -49,10 +53,23 @@ public class Client {
     
     public String read()
     {
-        byte[] buf = null;
+        byte[] buf=null;
+        int taille;
+        boolean block = true;
         try {
-            dis.readFully(buf);
-            return buf.toString();
+            while(block == true)
+            {
+                try {
+                taille = dis.readInt();
+                buf = new byte[taille];
+                dis.readFully(buf);
+                if(buf.length != 0)
+                   block = false;
+                }
+                catch(EOFException | NullPointerException e)
+                {}
+            }
+            return new String(buf);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -63,7 +80,9 @@ public class Client {
     {
         byte[] buf = s.toByte();
         try {
+            dos.writeInt(buf.length);
             dos.write(buf);
+            dos.flush();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }

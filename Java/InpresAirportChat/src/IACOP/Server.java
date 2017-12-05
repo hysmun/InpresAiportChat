@@ -7,6 +7,7 @@ package IACOP;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,6 +24,7 @@ public class Server {
     public DataInputStream dis = null;
     public DataOutputStream dos = null;
     public int portTCP;
+    public boolean run=false;
     
     public Server( int port)
     {
@@ -50,7 +52,9 @@ public class Server {
     {
         byte[] buf = s.getBytes();
         try {
+            dos.writeInt(buf.length);
             dos.write(buf);
+            dos.flush();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -60,9 +64,24 @@ public class Server {
     public String read()
     {
         byte[] buf = null;
+        boolean block = true;
+        int taille;
         try {
-            dis.readFully(buf);
-            return buf.toString();
+            while(block == true)
+            {
+                try {
+                taille = dis.readInt();
+                buf = new byte[taille];
+                dis.readFully(buf);
+                if(buf.length != 0)
+                   block = false;
+                }
+                catch(EOFException e)
+                {}
+                catch(NullPointerException e)
+                {}
+            }
+            return new String(buf);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -73,7 +92,9 @@ public class Server {
     {
         byte[] buf = s.toByte();
         try {
+            dos.writeInt(buf.length);
             dos.write(buf);
+            dos.flush();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -95,6 +116,7 @@ public class Server {
     public int Sclose()
     {
         try {
+            close();
             serSockTCP.close();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
