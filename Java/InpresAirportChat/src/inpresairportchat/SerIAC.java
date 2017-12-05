@@ -11,6 +11,8 @@ package inpresairportchat;
  */
 public class SerIAC {
 
+    public int PORT_FLY;
+     public int PORT_CHAT;
     /**
      * @param args the command line arguments
      */
