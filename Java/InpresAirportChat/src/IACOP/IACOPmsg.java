@@ -12,6 +12,8 @@ import java.util.StringTokenizer;
  * @author 'Toine
  */
 public class IACOPmsg {
+    
+    
     public int code;
     public String msg;
 
