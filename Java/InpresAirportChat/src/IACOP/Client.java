@@ -69,4 +69,17 @@ public class Client {
         }
         return 1;
     }
+    
+    public int close()
+    {
+        try {
+            dis.close();
+            dos.close();
+            cliSockTCP.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 1;
+    }
+   
 }

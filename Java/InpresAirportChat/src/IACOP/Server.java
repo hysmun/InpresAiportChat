@@ -79,4 +79,26 @@ public class Server {
         }
         return 1;
     }
+    
+    public int close()
+    {
+        try {
+            dis.close();
+            dos.close();
+            cliSocketTCP.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 1;
+    }
+    
+    public int Sclose()
+    {
+        try {
+            serSockTCP.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 1;
+    }
 }
