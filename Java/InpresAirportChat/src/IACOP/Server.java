@@ -9,6 +9,6 @@ package IACOP;
  *
  * @author 'Toine
  */
-public class ClientUDP {
+public class Server {
     
 }
