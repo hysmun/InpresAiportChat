@@ -69,7 +69,9 @@ public class CliSerBase {
             {
                 try {
                 taille = dis.readInt();
+                System.out.println(""+taille);
                 type = dis.readInt();
+                System.out.println(""+type);
                 buf = new byte[taille];
                 dis.readFully(buf);
                 if(buf.length != 0)
@@ -80,7 +82,7 @@ public class CliSerBase {
                 catch(NullPointerException e)
                 {}
             }
-            return ""+type+"|"+new String(buf);
+            return ""+type+"#"+new String(buf);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -107,9 +109,12 @@ public class CliSerBase {
         byte[] buf = s.toByte();
         DatagramPacket paquet=null;
         try {
-            dos.writeInt(s.msg.toString().getBytes().length);
+            dos.writeInt(s.msg.getBytes().length);
+            System.out.println(""+s.msg.getBytes().length);
             dos.writeInt(s.code);
-            dos.write(s.msg.toString().getBytes());
+            System.out.println(""+s.code);
+            dos.write(s.msg.getBytes());
+            System.out.println(""+new String(s.msg.getBytes()));
             dos.flush();
             
         } catch (IOException ex) {
