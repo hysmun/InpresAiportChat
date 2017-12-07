@@ -21,7 +21,7 @@ public class IACOPmsg {
     }
     
     public IACOPmsg(String msg) {
-        StringTokenizer st = new StringTokenizer(msg, "|");
+        StringTokenizer st = new StringTokenizer(msg, "#");
         
         this.code = Integer.parseInt(st.nextToken());
         this.msg = st.nextToken();
@@ -29,7 +29,7 @@ public class IACOPmsg {
     
     public IACOPmsg(byte [] msg) {
         String tmp = new String(msg);
-        StringTokenizer st = new StringTokenizer(tmp, "|");
+        StringTokenizer st = new StringTokenizer(tmp, "#");
         
         this.code = Integer.parseInt(st.nextToken());
         this.msg = st.nextToken();
@@ -37,7 +37,7 @@ public class IACOPmsg {
 
     @Override
     public String toString() {
-        return "" + code + "|" + msg;
+        return "" + code + "#" + msg;
     }
     
     public String toShow()
