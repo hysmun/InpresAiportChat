@@ -51,6 +51,29 @@ public class AppIAC extends javax.swing.JFrame {
             }
         };
     }
+    
+    public AppIAC(int portTcp, int portUdp) {
+        initComponents();
+        PORTTCP = portTcp;
+        PORTUDP = portUdp;
+        th = new Thread()
+        {
+            public void run()
+            {
+                //to do here
+                byte[] buf = new byte[256];
+                DatagramPacket msg = new DatagramPacket(buf, 256);
+                IACOPmsg chatmsg=null;
+                while(run == true)
+                {
+                    String tmp;
+                    msg = cli.readUdp();
+                    chatmsg = new IACOPmsg(new String(msg.getData()));
+                    write(chatmsg.toShow());
+                }
+            }
+        };
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -150,7 +173,7 @@ public class AppIAC extends javax.swing.JFrame {
         // TODO add your handling code here:
         if(cli == null)
         {
-            cli = new Client(ipTCP, PORTTCP);
+            cli = new Client(ipTCP, PORTTCP, PORTUDP);
             write("client connecter");
         }
         
@@ -160,7 +183,8 @@ public class AppIAC extends javax.swing.JFrame {
         write("message send : "+msg.toString());
         
         String readTcp = cli.readTcp();
-        StringTokenizer st = new StringTokenizer(readTcp, "|");
+        msg = new IACOPmsg(readTcp);
+        StringTokenizer st = new StringTokenizer(msg.msg, "|");
         try {
             IPUDP = (Inet4Address) Inet4Address.getByName(st.nextToken());
         } catch (UnknownHostException ex) {

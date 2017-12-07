@@ -99,9 +99,6 @@ public class SerIAC extends javax.swing.JFrame {
 
     private void startButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startButtonMouseClicked
         // TODO add your handling code here:
-        write("serveur accept");
-        ser.accept();
-        write("accept OK");
         run = true;
         thTcp.start();
         thUdp.start();
@@ -128,11 +125,15 @@ public class SerIAC extends javax.swing.JFrame {
         write("DEBUT read TCP");
         while(run == true)
         {
+            write("serveur accept");
+            ser.accept();
+            write("accept OK");
+            
             String tmp;
             tmp = ser.readTcp();
             write("message lu");
             msg = new IACOPmsg(tmp);
-            if(msg.code != IACOP.LOGIN_GROUP){
+            if(msg.code == IACOP.LOGIN_GROUP){
                 write(msg.toShow());
                 msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
                 ser.write(msg);

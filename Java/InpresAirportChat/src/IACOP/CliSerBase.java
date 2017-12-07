@@ -69,9 +69,9 @@ public class CliSerBase {
             {
                 try {
                 taille = dis.readInt();
-                System.out.println(""+taille);
+                //System.out.println(""+taille);
                 type = dis.readInt();
-                System.out.println(""+type);
+                //System.out.println(""+type);
                 buf = new byte[taille];
                 dis.readFully(buf);
                 if(buf.length != 0)
@@ -110,11 +110,11 @@ public class CliSerBase {
         DatagramPacket paquet=null;
         try {
             dos.writeInt(s.msg.getBytes().length);
-            System.out.println(""+s.msg.getBytes().length);
+            //System.out.println(""+s.msg.getBytes().length);
             dos.writeInt(s.code);
-            System.out.println(""+s.code);
+            //System.out.println(""+s.code);
             dos.write(s.msg.getBytes());
-            System.out.println(""+new String(s.msg.getBytes()));
+            //System.out.println(""+new String(s.msg.getBytes()));
             dos.flush();
             
         } catch (IOException ex) {
@@ -131,7 +131,7 @@ public class CliSerBase {
             if(s.code == IACOP.LOGIN_GROUP)
             {
                 dos.writeInt(s.msg.toString().getBytes().length);
-                dos.write(s.code);
+                dos.writeInt(s.code);
                 dos.write(s.msg.toString().getBytes());
                 dos.flush();
             }

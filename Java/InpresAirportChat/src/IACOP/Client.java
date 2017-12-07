@@ -21,15 +21,17 @@ import java.util.logging.Logger;
 public class Client extends CliSerBase{
     public String ipTCP;
     public int portTCP;
+    public int portUDP;
     
     
-    public Client(String ip, int port)
+    public Client(String ip, int port, int portUdp)
     {
         try {
             ipTCP = ip;
             portTCP=port;
+            portUDP = portUdp;
             cliSocketTCP = new Socket(ipTCP, portTCP);
-            serSockUDP = new DatagramSocket(2001);
+            serSockUDP = new DatagramSocket(portUDP);
             dis = new DataInputStream(cliSocketTCP.getInputStream());
             dos = new DataOutputStream(cliSocketTCP.getOutputStream());
         } catch (IOException ex) {
