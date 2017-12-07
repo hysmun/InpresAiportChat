@@ -40,6 +40,20 @@ public class IACOPmsg {
         return "" + code + "|" + msg;
     }
     
+    public String toShow()
+    {
+        String tmp = "";
+        if(code == IACOP.LOGIN_GROUP)
+            tmp+="LOGIN + "+msg;
+        if(code == IACOP.ANSWER_QUESTION)
+            tmp+="Answer + "+msg;
+        if(code == IACOP.POST_QUESTION)
+            tmp+="Question + "+msg;
+        if(code == IACOP.POST_EVENT)
+            tmp+="Event : "+msg;
+        return tmp;
+    }
+    
     public byte[] toByte()
     {
         return toString().getBytes();

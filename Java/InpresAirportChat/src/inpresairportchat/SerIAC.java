@@ -5,7 +5,8 @@
  */
 package inpresairportchat;
 
-import IACOP.Server;
+import IACOP.*;
+import java.net.DatagramPacket;
 import java.util.Date;
 
 /**
@@ -16,7 +17,8 @@ public class SerIAC extends javax.swing.JFrame {
 
     Server ser;
     int PORTTCP = 50000;
-    Thread th;
+    Thread thTcp;
+    Thread thUdp;
     boolean run = false;
     /**
      * Creates new form SerIAC
@@ -25,20 +27,9 @@ public class SerIAC extends javax.swing.JFrame {
         initComponents();
         ser = new Server(PORTTCP);
         write("serveur lancer");
-        th = new Thread()
-        {
-            public void run()
-            {
-                //to do here
-                while(run == true)
-                {
-                    String tmp;
-                    tmp = ser.read();
-                    write(tmp);
-                    ser.write(tmp);
-                }
-            }
-        };
+        thTcp = new Thread(){public void run(){ readWhileTcp(); }};
+        thUdp = new Thread(){public void run(){ readWhileUdp(); }};
+        
     }
 
     /**
@@ -112,7 +103,8 @@ public class SerIAC extends javax.swing.JFrame {
         ser.accept();
         write("accept OK");
         run = true;
-        th.start();
+        thTcp.start();
+        thUdp.start();
     }//GEN-LAST:event_startButtonMouseClicked
 
     private void StopButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_StopButtonMouseClicked
@@ -128,6 +120,44 @@ public class SerIAC extends javax.swing.JFrame {
         String s = ""+d+" "+tmp+"\n";
         chatTA.append(s);
         System.out.print(s);
+    }
+    public void readWhileTcp()
+    {
+        //to do here
+        IACOPmsg msg = null;
+        write("DEBUT read TCP");
+        while(run == true)
+        {
+            String tmp;
+            tmp = ser.readTcp();
+            write("message lu");
+            msg = new IACOPmsg(tmp);
+            if(msg.code != IACOP.LOGIN_GROUP){
+                write(msg.toShow());
+                msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
+                ser.write(msg);
+            }
+            else
+            {
+                write("ERROR"+msg.toString());
+            }
+        }
+        write("Fin read TCP");
+    }
+    public void readWhileUdp()
+    {
+        byte[] buf = new byte[256];
+        DatagramPacket msg = new DatagramPacket(buf, 256);
+        IACOPmsg chatmsg=null;
+        write("DEBUT read UDP");
+        while(run == true)
+        {
+            String tmp;
+            msg = ser.readUdp();
+            chatmsg = new IACOPmsg(new String(msg.getData()));
+            write(chatmsg.toShow());
+        }
+        write("Fin read UDP");
     }
     /**
      * @param args the command line arguments
