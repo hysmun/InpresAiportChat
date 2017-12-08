@@ -6,9 +6,14 @@
 package inpresairportchat;
 
 import IACOP.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -208,9 +213,28 @@ public class AppIAC extends javax.swing.JFrame {
             cli = new Client(ipTCP, 50000, PORTUDP);
             write("client connecter");
         }
-        String log=loginTF.getText()+"|"+passTF.getText();
+        String log = null;
+        String mdp = null;
+        long temps = (new Date()).getTime();
+        double alea = Math.random();
+        String rep=null;
+        try {
+            
+            log = loginTF.getText();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream bdos = new DataOutputStream(baos);
+            bdos.writeLong(temps);
+            bdos.writeDouble(alea);
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            mdp = passTF.getText();
+            md.update(mdp.getBytes());
+            md.update(baos.toByteArray());
+            rep = "" + log + "|" + temps + "|" + alea + "|" + new String(md.digest());
+        } catch (IOException iOException) {
+        } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+        }
         
-        IACOPmsg msg = new IACOPmsg(IACOP.LOGIN_GROUP, log);
+        IACOPmsg msg = new IACOPmsg(IACOP.LOGIN_GROUP, rep);
         cli.write(msg);
         //write("message send : "+msg.toString());
         

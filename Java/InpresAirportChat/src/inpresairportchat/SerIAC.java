@@ -6,12 +6,19 @@
 package inpresairportchat;
 
 import IACOP.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -154,12 +161,23 @@ public class SerIAC extends javax.swing.JFrame {
             write("message lu");
             msg = new IACOPmsg(tmp);
             if(msg.code == IACOP.LOGIN_GROUP){
-                StringTokenizer st = new StringTokenizer(msg.msg, "|");
-                String login = st.nextToken();
-                String mdp = st.nextToken();
-                //write(msg.toShow());
                 try {
-                    if (((String) hashLogin.get(login)).equals(mdp)) {
+                    StringTokenizer st = new StringTokenizer(msg.msg, "|");
+                    String login = st.nextToken();
+
+                    long temps = Long.parseLong(st.nextToken());
+                    double alea = Double.parseDouble(st.nextToken());
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream bdos = new DataOutputStream(baos);
+                    bdos.writeLong(temps);
+                    bdos.writeDouble(alea);
+                    String mdp = (String) hashLogin.get(login);
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    md.update(mdp.getBytes());
+                    md.update(baos.toByteArray());
+                    String digest = new String(md.digest());
+                
+                    if (digest.equals(st.nextToken())) {
                         write(msg.toShow());
                         msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
                         ser.write(msg);
@@ -173,6 +191,10 @@ public class SerIAC extends javax.swing.JFrame {
                 } catch (NullPointerException e) {
                     msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
                     ser.write(msg);
+                } catch (IOException ex) {
+                    Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (NoSuchAlgorithmException ex) {
+                    Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             else
@@ -194,7 +216,7 @@ public class SerIAC extends javax.swing.JFrame {
         {
             String tmp;
             msg = ser.readUdp();
-            //write("Recu : "+msg.getLength());
+            //write("Recu : "+new String(msg.getData()));
             chatmsg = new IACOPmsg(new String(msg.getData()).substring(0, msg.getLength()));
             if(chatmsg.code == IACOP.POST_QUESTION)
             {
