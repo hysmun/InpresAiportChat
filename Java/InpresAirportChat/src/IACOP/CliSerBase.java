@@ -149,9 +149,12 @@ public class CliSerBase {
     public int close()
     {
         try {
-            dis.close();
-            dos.close();
-            cliSocketTCP.close();
+            if(dis != null)
+                dis.close();
+            if(dos != null)
+                dos.close();
+            if(cliSocketTCP != null)
+                cliSocketTCP.close();
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -91,6 +91,9 @@ public class AppIAC extends javax.swing.JFrame {
         connectButton = new javax.swing.JButton();
         connectCB = new javax.swing.JCheckBox();
         decoButton = new javax.swing.JButton();
+        loginTF = new javax.swing.JTextField();
+        passTF = new javax.swing.JTextField();
+        portSpinner = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -122,6 +125,12 @@ public class AppIAC extends javax.swing.JFrame {
             }
         });
 
+        loginTF.setText("user");
+
+        passTF.setText("user");
+
+        portSpinner.setModel(new javax.swing.SpinnerNumberModel(50100, 50100, 60000, 1));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -132,11 +141,16 @@ public class AppIAC extends javax.swing.JFrame {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
                     .addComponent(msgTF))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(senButton, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(decoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(connectCB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(senButton, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(decoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(connectCB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(portSpinner, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(loginTF, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(passTF, javax.swing.GroupLayout.Alignment.LEADING)))
                 .addContainerGap(112, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -150,7 +164,13 @@ public class AppIAC extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(decoButton)
                         .addGap(26, 26, 26)
-                        .addComponent(connectCB)))
+                        .addComponent(connectCB)
+                        .addGap(124, 124, 124)
+                        .addComponent(loginTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(passTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)
+                        .addComponent(portSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(msgTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -159,6 +179,7 @@ public class AppIAC extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void senButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_senButtonMouseClicked
@@ -170,36 +191,52 @@ public class AppIAC extends javax.swing.JFrame {
     }//GEN-LAST:event_senButtonMouseClicked
 
     private void connectButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_connectButtonMouseClicked
-        // TODO add your handling code here:
+        // TODO add your handling code here:1
+        int portTcp1=0;
         if(cli == null)
         {
-            cli = new Client(ipTCP, PORTTCP, PORTUDP);
+            portTcp1 = (int) portSpinner.getValue();
+            PORTUDP = portTcp1+1;
+            cli = new Client(ipTCP, 50000, PORTUDP);
             write("client connecter");
         }
+        String log=loginTF.getText()+"|"+passTF.getText();
         
-        
-        IACOPmsg msg = new IACOPmsg(IACOP.LOGIN_GROUP, "user|user");
+        IACOPmsg msg = new IACOPmsg(IACOP.LOGIN_GROUP, log);
         cli.write(msg);
         write("message send : "+msg.toString());
         
         String readTcp = cli.readTcp();
         msg = new IACOPmsg(readTcp);
-        StringTokenizer st = new StringTokenizer(msg.msg, "|");
-        try {
-            IPUDP = (Inet4Address) Inet4Address.getByName(st.nextToken());
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(AppIAC.class.getName()).log(Level.SEVERE, null, ex);
+        if(msg.code != IACOP.LOGIN_NOK)
+        {
+            StringTokenizer st = new StringTokenizer(msg.msg, "|");
+            try {
+                IPUDP = (Inet4Address) Inet4Address.getByName(st.nextToken());
+            } catch (UnknownHostException ex) {
+                Logger.getLogger(AppIAC.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            PORTUDP = Integer.parseInt(st.nextToken());
+            write("Client connecter par tcp");
+            write("ip recu --  "+IPUDP.getHostAddress()+":"+PORTUDP);
+            connectCB.setSelected(true);
+            cli.connectUdp(portTcp1);
+            run = true;
+            th.start();
         }
-        PORTUDP = Integer.parseInt(st.nextToken());
-        write("Client connecter par tcp");
-        write("ip recu --  "+IPUDP.getHostAddress()+":"+PORTUDP);
-        run = true;
-        th.start();
+        else
+        {
+            write("ERREUR LOGIN veuillez reessaye");
+            connectCB.setSelected(false);
+            cli.close();
+            cli = null;
+        }
     }//GEN-LAST:event_connectButtonMouseClicked
 
     private void decoButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_decoButtonMouseClicked
         // TODO add your handling code here:
         run = false;
+        connectCB.setSelected(false);
         cli.close();
         cli = null;
     }//GEN-LAST:event_decoButtonMouseClicked
@@ -252,7 +289,10 @@ public class AppIAC extends javax.swing.JFrame {
     private javax.swing.JCheckBox connectCB;
     private javax.swing.JButton decoButton;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField loginTF;
     private javax.swing.JTextField msgTF;
+    private javax.swing.JTextField passTF;
+    private javax.swing.JSpinner portSpinner;
     private javax.swing.JButton senButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -8,6 +8,8 @@ package inpresairportchat;
 import IACOP.*;
 import java.net.DatagramPacket;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -20,6 +22,16 @@ public class SerIAC extends javax.swing.JFrame {
     Thread thTcp;
     Thread thUdp;
     boolean run = false;
+    
+    static Hashtable<String, String> hashLogin = new Hashtable<String, String>();
+    
+    static
+    {
+        hashLogin.put("user", "user");
+        hashLogin.put("root", "toor");
+        hashLogin.put("toine", "aaaa");
+        hashLogin.put("remy", "ggbrogg");
+    }
     /**
      * Creates new form SerIAC
      */
@@ -95,6 +107,7 @@ public class SerIAC extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void startButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startButtonMouseClicked
@@ -134,13 +147,27 @@ public class SerIAC extends javax.swing.JFrame {
             write("message lu");
             msg = new IACOPmsg(tmp);
             if(msg.code == IACOP.LOGIN_GROUP){
-                write(msg.toShow());
-                msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
-                ser.write(msg);
+                StringTokenizer st = new StringTokenizer(msg.msg, "|");
+                String login = st.nextToken();
+                String mdp = st.nextToken();
+                if(((String)hashLogin.get(login)).equals(mdp))
+                {
+                    write(msg.toShow());
+                    msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
+                    ser.write(msg);
+                }
+                else
+                {
+                    write(msg.toShow());
+                    msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                    ser.write(msg);
+                }
             }
             else
             {
-                write("ERROR"+msg.toString());
+                write(msg.toShow());
+                msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                ser.write(msg);
             }
         }
         write("Fin read TCP");
