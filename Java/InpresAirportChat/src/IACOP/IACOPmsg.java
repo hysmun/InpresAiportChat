@@ -56,7 +56,7 @@ public class IACOPmsg {
         if(code == IACOP.POST_QUESTION)
             tmp+="Question + "+msg;
         if(code == IACOP.POST_EVENT)
-            tmp+="Event + "+msg;
+            tmp+=""+msg;
         return tmp;
     }
     

@@ -20,6 +20,8 @@ public class mainCliSer {
         serf.setVisible(true);
         AppIAC clif = new AppIAC();
         clif.setVisible(true);
+        AppIAC clif2 = new AppIAC(50000, 50105);
+        clif2.setVisible(true);
     }
     
 }

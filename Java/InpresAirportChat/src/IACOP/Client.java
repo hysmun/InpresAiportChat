@@ -10,10 +10,14 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.text.html.HTML;
 
 /**
  *
@@ -28,6 +32,7 @@ public class Client extends CliSerBase{
     public Client(String ip, int port, int portUdp)
     {
         try {
+            this.addrUdp = InetAddress.getByName("227.0.0.10");
             ipTCP = ip;
             portTCP=port;
             portUDP = portUdp;
@@ -44,8 +49,11 @@ public class Client extends CliSerBase{
     {
         try {
             portUDP = portUdp;
-            serSockUDP = new DatagramSocket(portUDP);
+            serSockUDP = new MulticastSocket(portUDP);
+            serSockUDP.joinGroup(InetAddress.getByName("227.0.0.10"));
         } catch (SocketException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,13 +26,22 @@ import java.util.logging.Logger;
  */
 public class CliSerBase {
     
-    public DatagramSocket serSockUDP = null;
+    public MulticastSocket serSockUDP = null;
     public Socket cliSocketTCP = null;
     public DataInputStream dis = null;
     public DataOutputStream dos = null;
     public int portTCP = 50000;
     public int portUDP = 50001;
     public boolean run=false;
+    InetAddress addrUdp;
+
+    public CliSerBase() {
+        try {
+            this.addrUdp = InetAddress.getByName("227.0.0.10");
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(CliSerBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     
     public int writeLogin(String s)
@@ -140,7 +151,7 @@ public class CliSerBase {
             {
                 String msg = new String(s.toByte())+'\0';
                 //paquet = new DatagramPacket(s.toByte(),s.toByte().length,addr, port);
-                paquet = new DatagramPacket(msg.getBytes(),msg.getBytes().length,addr, port);
+                paquet = new DatagramPacket(msg.getBytes(),msg.getBytes().length,addrUdp, port);
                 serSockUDP.send(paquet);
             }
         } catch (IOException ex) {
@@ -158,6 +169,8 @@ public class CliSerBase {
                 dos.close();
             if(cliSocketTCP != null)
                 cliSocketTCP.close();
+            
+            serSockUDP.leaveGroup(InetAddress.getByName("227.0.0.10"));
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -61,6 +61,7 @@ public class AppIAC extends javax.swing.JFrame {
         initComponents();
         PORTTCP = portTcp;
         PORTUDP = portUdp;
+        portSpinner.setValue(portUdp);
         th = new Thread()
         {
             public void run()
@@ -196,7 +197,7 @@ public class AppIAC extends javax.swing.JFrame {
             msg = new IACOPmsg(IACOP.POST_QUESTION,msgTF.getText().substring(1, msgTF.getText().length()));
         }
         else
-            msg = new IACOPmsg(IACOP.POST_EVENT,msgTF.getText());
+            msg = new IACOPmsg(IACOP.POST_EVENT,loginTF.getText()+": "+msgTF.getText());
         cli.write(msg, IPUDP, PORTUDP);
         //write("Cli sended : "+msg.toShow());
         //cli.write(msg);
@@ -252,7 +253,7 @@ public class AppIAC extends javax.swing.JFrame {
             //write("Client connecter par tcp");
             write("ip recu --  "+IPUDP.getHostAddress()+":"+PORTUDP);
             connectCB.setSelected(true);
-            cli.connectUdp(portTcp1);
+            cli.connectUdp(50001);
             run = true;
             th.start();
         }
