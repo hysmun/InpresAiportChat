@@ -17,14 +17,14 @@ public class IACOPmsg {
 
     public IACOPmsg(int code, String msg) {
         this.code = code;
-        this.msg = msg;
+        setMsg(msg);
     }
     
     public IACOPmsg(String msg) {
         StringTokenizer st = new StringTokenizer(msg, "#");
         
         this.code = Integer.parseInt(st.nextToken());
-        this.msg = st.nextToken();
+        setMsg(st.nextToken());
     }
     
     public IACOPmsg(byte [] msg) {
@@ -32,7 +32,13 @@ public class IACOPmsg {
         StringTokenizer st = new StringTokenizer(tmp, "#");
         
         this.code = Integer.parseInt(st.nextToken());
-        this.msg = st.nextToken();
+        setMsg(st.nextToken());
+    }
+    
+    public boolean setMsg(String msg)
+    {
+        this.msg = msg;
+        return false;
     }
 
     @Override
@@ -50,7 +56,7 @@ public class IACOPmsg {
         if(code == IACOP.POST_QUESTION)
             tmp+="Question + "+msg;
         if(code == IACOP.POST_EVENT)
-            tmp+="Event : "+msg;
+            tmp+="Event + "+msg;
         return tmp;
     }
     

@@ -137,7 +137,9 @@ public class CliSerBase {
             }
             else
             {
+                String msg = s.msg+'\0';
                 paquet = new DatagramPacket(s.toByte(),s.toByte().length,addr, port);
+                //paquet = new DatagramPacket(msg.getBytes(),msg.getBytes().length,addr, port);
                 serSockUDP.send(paquet);
             }
         } catch (IOException ex) {

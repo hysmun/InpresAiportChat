@@ -68,7 +68,7 @@ public class AppIAC extends javax.swing.JFrame {
                 {
                     String tmp;
                     msg = cli.readUdp();
-                    chatmsg = new IACOPmsg(new String(msg.getData()));
+                    chatmsg = new IACOPmsg(new String(msg.getData()).substring(0, msg.getLength()));
                     write(chatmsg.toShow());
                 }
             }
@@ -184,8 +184,16 @@ public class AppIAC extends javax.swing.JFrame {
 
     private void senButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_senButtonMouseClicked
         // TODO add your handling code here:
-        IACOPmsg msg = new IACOPmsg(IACOP.POST_EVENT,msgTF.getText());
+        
+        IACOPmsg msg = null;
+        if(msgTF.getText().charAt(0) == '?')
+        {
+            msg = new IACOPmsg(IACOP.POST_QUESTION,msgTF.getText().substring(1, msgTF.getText().length()));
+        }
+        else
+            msg = new IACOPmsg(IACOP.POST_EVENT,msgTF.getText());
         cli.write(msg, IPUDP, PORTUDP);
+        //write("Cli sended : "+msg.toShow());
         //cli.write(msg);
         msgTF.setText("");
     }//GEN-LAST:event_senButtonMouseClicked
@@ -204,7 +212,7 @@ public class AppIAC extends javax.swing.JFrame {
         
         IACOPmsg msg = new IACOPmsg(IACOP.LOGIN_GROUP, log);
         cli.write(msg);
-        write("message send : "+msg.toString());
+        //write("message send : "+msg.toString());
         
         String readTcp = cli.readTcp();
         msg = new IACOPmsg(readTcp);
@@ -217,7 +225,7 @@ public class AppIAC extends javax.swing.JFrame {
                 Logger.getLogger(AppIAC.class.getName()).log(Level.SEVERE, null, ex);
             }
             PORTUDP = Integer.parseInt(st.nextToken());
-            write("Client connecter par tcp");
+            //write("Client connecter par tcp");
             write("ip recu --  "+IPUDP.getHostAddress()+":"+PORTUDP);
             connectCB.setSelected(true);
             cli.connectUdp(portTcp1);

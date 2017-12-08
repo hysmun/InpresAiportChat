@@ -9,7 +9,9 @@ import IACOP.*;
 import java.net.DatagramPacket;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  *
@@ -23,7 +25,8 @@ public class SerIAC extends javax.swing.JFrame {
     Thread thUdp;
     boolean run = false;
     
-    static Hashtable<String, String> hashLogin = new Hashtable<String, String>();
+    static Map<String, String> hashLogin = new TreeMap<String, String>();
+    static Map<String, String> hashQuestion = new TreeMap<String, String>();
     
     static
     {
@@ -31,6 +34,10 @@ public class SerIAC extends javax.swing.JFrame {
         hashLogin.put("root", "toor");
         hashLogin.put("toine", "aaaa");
         hashLogin.put("remy", "ggbrogg");
+        
+        hashQuestion.put("weather", "20 degre, pluie, tornade");
+        hashQuestion.put("job", "Netoyeur centrale nucléaire de fukushima, peripateticienne, Souffleur de reponse, magicien pour aveugle");
+        hashQuestion.put("bourse", "dollars 0,81   euros 1   yen 10000   chilling 423");
     }
     /**
      * Creates new form SerIAC
@@ -150,15 +157,20 @@ public class SerIAC extends javax.swing.JFrame {
                 StringTokenizer st = new StringTokenizer(msg.msg, "|");
                 String login = st.nextToken();
                 String mdp = st.nextToken();
-                if(((String)hashLogin.get(login)).equals(mdp))
-                {
-                    write(msg.toShow());
-                    msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
-                    ser.write(msg);
-                }
-                else
-                {
-                    write(msg.toShow());
+                //write(msg.toShow());
+                try {
+                    if (((String) hashLogin.get(login)).equals(mdp)) {
+                        write(msg.toShow());
+                        msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
+                        ser.write(msg);
+                    }
+                    else
+                    {
+                        write(msg.toShow());
+                        msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                        ser.write(msg);
+                    }
+                } catch (NullPointerException e) {
                     msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
                     ser.write(msg);
                 }
@@ -182,8 +194,25 @@ public class SerIAC extends javax.swing.JFrame {
         {
             String tmp;
             msg = ser.readUdp();
-            chatmsg = new IACOPmsg(new String(msg.getData()));
-            write(chatmsg.toShow());
+            //write("Recu : "+msg.getLength());
+            chatmsg = new IACOPmsg(new String(msg.getData()).substring(0, msg.getLength()));
+            if(chatmsg.code == IACOP.POST_QUESTION)
+            {
+                write("POST_QUESTION:"+chatmsg.toShow());
+                IACOPmsg chatrep = null;
+                String rep;
+                rep = hashQuestion.get(chatmsg.msg);
+                //write("@"+chatmsg.msg+" -- ");
+                if(rep != null)
+                    chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, rep);
+                else
+                    chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, "ERREUR QUESTION");
+                ser.write(chatrep, msg.getAddress(), msg.getPort());
+            }
+            if(chatmsg.code == IACOP.POST_EVENT)
+            {
+                write(chatmsg.toShow());
+            }
         }
         write("Fin read UDP");
     }
