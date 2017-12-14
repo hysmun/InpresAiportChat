@@ -2,7 +2,7 @@
 
 GCC=g++
 CFLAGS=-Wall -lpthread
-OBJ=Application_CIAChat.o
+OBJ=Application_CIAChat.o SocketException.o socketLib.o libUtils.o
 APP=Application_CIAChat
 TMP = commentaire de base
 
@@ -14,7 +14,7 @@ all:
 	make Application_CIAChat
 
 
-$(APP): $(OBJ)
+$(APP):$(OBJ)
 	echo compilation $@
 	$(GCC) -o $@ $(OBJ) $(CFLAGS)
 
@@ -28,8 +28,8 @@ $(APP): $(OBJ)
 clean:
 	clear
 	clear
-	echo clean all
-	rm -rf *.o $(APP)
+	echo clean all *.o $(APP) $(OBJ)
+	rm -rf  $(APP) $(OBJ) *.o 
 
 
 #------			Git
