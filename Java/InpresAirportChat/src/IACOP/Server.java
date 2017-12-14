@@ -31,7 +31,9 @@ public class Server extends CliSerBase{
         try {
             this.addrUdp = InetAddress.getByName("227.0.0.10");
             portTCP=port;
-            serSockTCP = new ServerSocket(portTCP);
+            //serSockTCP = new ServerSocket(portTCP);
+            serSockTCP = new ServerSocket( portTCP);
+            System.out.println("adress server : "+serSockTCP.getInetAddress().getHostAddress());
             serSockUDP = new MulticastSocket(portUDP);
             serSockUDP.joinGroup(InetAddress.getByName("227.0.0.10"));
         } catch (IOException ex) {
@@ -46,6 +48,7 @@ public class Server extends CliSerBase{
             portTCP=portTcp;
             portUDP = portUdp;
             serSockTCP = new ServerSocket(portTCP);
+            System.out.println("adress server : "+serSockTCP.getInetAddress().getHostAddress());
             serSockUDP = new MulticastSocket(portUDP);
             serSockUDP.joinGroup(InetAddress.getByName("227.0.0.10"));
         } catch (IOException ex) {
