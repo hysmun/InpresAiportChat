@@ -5,6 +5,7 @@
  */
 package IACOP;
 
+import com.sun.media.jfxmedia.AudioClip;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -12,8 +13,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,13 +26,22 @@ import java.util.logging.Logger;
  */
 public class CliSerBase {
     
-    public DatagramSocket serSockUDP = null;
+    public MulticastSocket serSockUDP = null;
     public Socket cliSocketTCP = null;
     public DataInputStream dis = null;
     public DataOutputStream dos = null;
     public int portTCP = 50000;
     public int portUDP = 50001;
     public boolean run=false;
+    InetAddress addrUdp;
+
+    public CliSerBase() {
+        try {
+            this.addrUdp = InetAddress.getByName("227.0.0.10");
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(CliSerBase.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
     
     public int writeLogin(String s)
@@ -69,9 +81,9 @@ public class CliSerBase {
             {
                 try {
                 taille = dis.readInt();
-                System.out.println(""+taille);
+                //System.out.println(""+taille);
                 type = dis.readInt();
-                System.out.println(""+type);
+                //System.out.println(""+type);
                 buf = new byte[taille];
                 dis.readFully(buf);
                 if(buf.length != 0)
@@ -110,11 +122,11 @@ public class CliSerBase {
         DatagramPacket paquet=null;
         try {
             dos.writeInt(s.msg.getBytes().length);
-            System.out.println(""+s.msg.getBytes().length);
+            //System.out.println(""+s.msg.getBytes().length);
             dos.writeInt(s.code);
-            System.out.println(""+s.code);
+            //System.out.println(""+s.code);
             dos.write(s.msg.getBytes());
-            System.out.println(""+new String(s.msg.getBytes()));
+            //System.out.println(""+new String(s.msg.getBytes()));
             dos.flush();
             
         } catch (IOException ex) {
@@ -131,13 +143,15 @@ public class CliSerBase {
             if(s.code == IACOP.LOGIN_GROUP)
             {
                 dos.writeInt(s.msg.toString().getBytes().length);
-                dos.write(s.code);
+                dos.writeInt(s.code);
                 dos.write(s.msg.toString().getBytes());
                 dos.flush();
             }
             else
             {
-                paquet = new DatagramPacket(s.toByte(),s.toByte().length,addr, port);
+                String msg = new String(s.toByte())+'\0';
+                //paquet = new DatagramPacket(s.toByte(),s.toByte().length,addr, port);
+                paquet = new DatagramPacket(msg.getBytes(),msg.getBytes().length,addrUdp, port);
                 serSockUDP.send(paquet);
             }
         } catch (IOException ex) {
@@ -149,9 +163,14 @@ public class CliSerBase {
     public int close()
     {
         try {
-            dis.close();
-            dos.close();
-            cliSocketTCP.close();
+            if(dis != null)
+                dis.close();
+            if(dos != null)
+                dos.close();
+            if(cliSocketTCP != null)
+                cliSocketTCP.close();
+            
+            serSockUDP.leaveGroup(InetAddress.getByName("227.0.0.10"));
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }

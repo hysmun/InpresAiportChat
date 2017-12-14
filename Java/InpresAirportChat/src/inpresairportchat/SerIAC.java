@@ -6,8 +6,19 @@
 package inpresairportchat;
 
 import IACOP.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.DatagramPacket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,6 +31,21 @@ public class SerIAC extends javax.swing.JFrame {
     Thread thTcp;
     Thread thUdp;
     boolean run = false;
+    
+    static Map<String, String> hashLogin = new TreeMap<String, String>();
+    static Map<String, String> hashQuestion = new TreeMap<String, String>();
+    
+    static
+    {
+        hashLogin.put("user", "user");
+        hashLogin.put("root", "toor");
+        hashLogin.put("toine", "aaaa");
+        hashLogin.put("remy", "ggbrogg");
+        
+        hashQuestion.put("weather", "20 degre, pluie, tornade");
+        hashQuestion.put("job", "Netoyeur centrale nucléaire de fukushima, peripateticienne, Souffleur de reponse, magicien pour aveugle");
+        hashQuestion.put("bourse", "dollars 0,81   euros 1   yen 10000   chilling 423");
+    }
     /**
      * Creates new form SerIAC
      */
@@ -95,13 +121,11 @@ public class SerIAC extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void startButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_startButtonMouseClicked
         // TODO add your handling code here:
-        write("serveur accept");
-        ser.accept();
-        write("accept OK");
         run = true;
         thTcp.start();
         thUdp.start();
@@ -128,18 +152,56 @@ public class SerIAC extends javax.swing.JFrame {
         write("DEBUT read TCP");
         while(run == true)
         {
+            write("serveur accept");
+            ser.accept();
+            write("accept OK");
+            
             String tmp;
             tmp = ser.readTcp();
             write("message lu");
             msg = new IACOPmsg(tmp);
-            if(msg.code != IACOP.LOGIN_GROUP){
-                write(msg.toShow());
-                msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
-                ser.write(msg);
+            if(msg.code == IACOP.LOGIN_GROUP){
+                try {
+                    StringTokenizer st = new StringTokenizer(msg.msg, "|");
+                    String login = st.nextToken();
+
+                    long temps = Long.parseLong(st.nextToken());
+                    double alea = Double.parseDouble(st.nextToken());
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream bdos = new DataOutputStream(baos);
+                    bdos.writeLong(temps);
+                    bdos.writeDouble(alea);
+                    String mdp = (String) hashLogin.get(login);
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    md.update(mdp.getBytes());
+                    md.update(baos.toByteArray());
+                    String digest = new String(md.digest());
+                
+                    if (digest.equals(st.nextToken())) {
+                        write(msg.toShow());
+                        msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
+                        ser.write(msg);
+                    }
+                    else
+                    {
+                        write(msg.toShow());
+                        msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                        ser.write(msg);
+                    }
+                } catch (NullPointerException e) {
+                    msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                    ser.write(msg);
+                } catch (IOException ex) {
+                    Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (NoSuchAlgorithmException ex) {
+                    Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             else
             {
-                write("ERROR"+msg.toString());
+                write(msg.toShow());
+                msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                ser.write(msg);
             }
         }
         write("Fin read TCP");
@@ -154,8 +216,25 @@ public class SerIAC extends javax.swing.JFrame {
         {
             String tmp;
             msg = ser.readUdp();
-            chatmsg = new IACOPmsg(new String(msg.getData()));
-            write(chatmsg.toShow());
+            //write("Recu : "+new String(msg.getData()));
+            chatmsg = new IACOPmsg(new String(msg.getData()).substring(0, msg.getLength()));
+            if(chatmsg.code == IACOP.POST_QUESTION)
+            {
+                write("POST_QUESTION:"+chatmsg.toShow());
+                IACOPmsg chatrep = null;
+                String rep;
+                rep = hashQuestion.get(chatmsg.msg);
+                //write("@"+chatmsg.msg+" -- ");
+                if(rep != null)
+                    chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, rep);
+                else
+                    chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, "ERREUR QUESTION");
+                ser.write(chatrep, msg.getAddress(), msg.getPort());
+            }
+            if(chatmsg.code == IACOP.POST_EVENT)
+            {
+                write(chatmsg.toShow());
+            }
         }
         write("Fin read UDP");
     }
