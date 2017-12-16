@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
 					conOK = Connection();
 					if(conOK)
 					{
+						cout <<"connection OK"<<endl;
 						menuCIAChat();
 					}
 					break;
@@ -128,6 +129,18 @@ int main(int argc, char *argv[])
 
 void menuCIAChat()
 {
+	char choix='i';
+	while(choix != 'q')
+	{
+		//affichage menu
+		cout<<"menu :"<<endl;
+		
+		//choix
+		cin >> choix;
+		
+		//execution 
+		
+	}
 	return;
 }
 
@@ -142,7 +155,8 @@ int Connection()
 	//
 	char *msgToSend;
 	
-	return 0;
+	
+	return 1;
 }
 
 

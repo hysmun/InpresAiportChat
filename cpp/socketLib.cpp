@@ -89,6 +89,7 @@ int ClientConnect(int phandle, struct sockaddr_in *paddrsock)
 	if(connect(phandle, (struct sockaddr *)paddrsock, taille)==-1)
 	{
 		//throw
+		perror("test");
 		throw SocketException(SocketException::ERRORCONNECT);
 	}
 	return 1;
@@ -140,6 +141,42 @@ int ClientInit(int pport, string ip, struct sockaddr_in *adresseSocket)
 	
 	//creation socket
 	if((handleSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP))==-1)
+	{
+		// throw
+		throw SocketException(SocketException::ERRORINIT);
+	}
+	
+	//acquisition info ordi
+	if((infosHost = gethostbyname(ip.c_str()))==0)
+	{
+		//throw
+		throw SocketException(SocketException::ERRORINIT);
+	}
+	memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);
+	
+	
+	
+	//prepa struct sockaddr_in
+	memset(adresseSocket, 0, sizeof(struct sockaddr_in));
+	adresseSocket->sin_family = AF_INET;
+	adresseSocket->sin_port = htons(pport);
+	memcpy(&(adresseSocket->sin_addr), infosHost->h_addr, infosHost->h_length);
+	
+	cout << "clien: "<<inet_ntoa(adresseIP)<<":"<<pport<<endl;
+	
+	return handleSocket;
+}
+
+int ClientInitUDP(int pport, string ip, struct sockaddr_in *adresseSocket)
+{
+	//
+	struct hostent *infosHost;
+	struct in_addr adresseIP;
+	//struct sockaddr_in adresseSocket;
+	int handleSocket;
+	
+	//creation socket
+	if((handleSocket = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))==-1)
 	{
 		// throw
 		throw SocketException(SocketException::ERRORINIT);
