@@ -10,6 +10,8 @@ int ClientInit(int pport, struct sockaddr_in *adresseSocket);
 
 int ClientInit(int pport, string ip, struct sockaddr_in *adresseSocket);
 
+int ClientInitUDP(int pport, string ip, struct sockaddr_in *adresseSocket);
+
 int SendMsg(void);
 
 int RcvMsg(void);

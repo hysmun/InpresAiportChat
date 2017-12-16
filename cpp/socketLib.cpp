@@ -196,7 +196,11 @@ int ClientInitUDP(int pport, string ip, struct sockaddr_in *adresseSocket)
 	memset(adresseSocket, 0, sizeof(struct sockaddr_in));
 	adresseSocket->sin_family = AF_INET;
 	adresseSocket->sin_port = htons(pport);
-	memcpy(&(adresseSocket->sin_addr), infosHost->h_addr, infosHost->h_length);
+	if(inet_aton(ip.c_str() , &adresseSocket->sin_addr) == 0) 
+   {
+		fprintf(stderr, "inet_aton() failed\n");
+		exit(1);
+   }
 	
 	cout << "clien: "<<inet_ntoa(adresseIP)<<":"<<pport<<endl;
 	

@@ -17,11 +17,18 @@
 #include "socketLib.h"
 #include "libUtils.h"
 
+#define TRUE	1
+#define FALSE	0
+
+#define BUFLEN 255
+
 using namespace std;
 
 void HandlerSIGINT(int s);
 void menuCIAChat();
 int Connection();
+
+void *thReceiv(void*);
 
 char *msgSend;
 char *msgRecv;
@@ -29,19 +36,24 @@ TypeRequete typeCli, typeSer;
 int sizeCli, sizeSer;
 
 int handleSocket;
+int udpSocket;
 	
 int portServer;
 string ip;
 char sepTrame='#';
 int conOK = 0;
+int thReceivState=FALSE;
 string login;
 string mdp;
+struct sockaddr_in *adresseSocket;
+struct sockaddr_in *adresseUDP;
 
 int main(int argc, char *argv[])
 {
 	// Variables
 	char choix;
-	struct sockaddr_in *adresseSocket = (sockaddr_in *) malloc(sizeof(struct sockaddr_in));
+	adresseSocket = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
+	adresseUDP = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
 
 	// Init et ouverture des sockets
 	srand(time(NULL));
@@ -130,6 +142,7 @@ int main(int argc, char *argv[])
 void menuCIAChat()
 {
 	char choix='i';
+	thReceivState = TRUE;
 	while(choix != 'q')
 	{
 		//affichage menu
@@ -155,10 +168,29 @@ int Connection()
 	//
 	char *msgToSend;
 	
+	udpSocket = ClientInitUDP(50001, "227.0.0.10",adresseUDP);
 	
 	return 1;
 }
 
+void *thReceiv(void*)
+{
+	//
+	char buf[256];
+	int slen = sizeof(struct sockaddr_in);
+	while(1)
+	{
+		while(thReceivState == TRUE)
+		{
+			if (recvfrom(udpSocket, buf, BUFLEN, 0, (struct sockaddr *)adresseUDP, (socklen_t *)&slen) == -1)
+        {
+            cout <<endl<< "erreur receive !!"<<endl<<endl;
+        }
+        cout<<"Message recu : "<<buf<<endl;
+		}
+		waitTime(1, 0);
+	}
+}
 
 void HandlerSIGINT(int s)
 {
@@ -170,4 +202,30 @@ void HandlerSIGINT(int s)
 	exit(0);
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
