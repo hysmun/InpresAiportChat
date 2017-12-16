@@ -101,7 +101,7 @@ public class AppIAC extends javax.swing.JFrame {
         passTF = new javax.swing.JTextField();
         portSpinner = new javax.swing.JSpinner();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         chatTA.setEditable(false);
         chatTA.setColumns(20);
@@ -199,7 +199,7 @@ public class AppIAC extends javax.swing.JFrame {
         else
             msg = new IACOPmsg(IACOP.POST_EVENT,loginTF.getText()+": "+msgTF.getText());
         cli.write(msg, IPUDP, PORTUDP);
-        //write("Cli sended : "+msg.toShow());
+        //write("Cli sended :"+msg.msg+"|");
         //cli.write(msg);
         msgTF.setText("");
     }//GEN-LAST:event_senButtonMouseClicked
