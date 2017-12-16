@@ -149,7 +149,7 @@ public class CliSerBase {
             }
             else
             {
-                String msg = new String(s.toByte())+'\0';
+                String msg = new String(s.toByte());
                 //paquet = new DatagramPacket(s.toByte(),s.toByte().length,addr, port);
                 paquet = new DatagramPacket(msg.getBytes(),msg.getBytes().length,addrUdp, port);
                 serSockUDP.send(paquet);

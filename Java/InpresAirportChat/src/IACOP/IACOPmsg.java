@@ -25,6 +25,7 @@ public class IACOPmsg {
         
         this.code = Integer.parseInt(st.nextToken());
         setMsg(st.nextToken());
+        //System.out.println("Creat iacop msg |"+msg+"|");
     }
     
     public IACOPmsg(byte [] msg) {

@@ -35,6 +35,12 @@ public class SerIAC extends javax.swing.JFrame {
     static Map<String, String> hashLogin = new TreeMap<String, String>();
     static Map<String, String> hashQuestion = new TreeMap<String, String>();
     
+    static String helpStr =    "commande disponible:\n"+
+                        "h or help -- fournis les questions possibles\n"+
+                        "weather -- fournis la meteo courantes\n"+
+                        "job -- fournis les jobs disponibles dans la companies\n"+
+                        "bourse -- fournis les valeurs actuel de la bourse";
+    
     static
     {
         hashLogin.put("user", "user");
@@ -42,6 +48,8 @@ public class SerIAC extends javax.swing.JFrame {
         hashLogin.put("toine", "aaaa");
         hashLogin.put("remy", "ggbrogg");
         
+        hashQuestion.put("help", helpStr);
+        hashQuestion.put("h", helpStr);
         hashQuestion.put("weather", "20 degre, pluie, tornade");
         hashQuestion.put("job", "Netoyeur centrale nucléaire de fukushima, peripateticienne, Souffleur de reponse, magicien pour aveugle");
         hashQuestion.put("bourse", "dollars 0,81   euros 1   yen 10000   chilling 423");
@@ -220,7 +228,7 @@ public class SerIAC extends javax.swing.JFrame {
             chatmsg = new IACOPmsg(new String(msg.getData()).substring(0, msg.getLength()));
             if(chatmsg.code == IACOP.POST_QUESTION)
             {
-                write("POST_QUESTION:"+chatmsg.toShow());
+                write("POST_QUESTION:"+chatmsg.msg+"|");
                 IACOPmsg chatrep = null;
                 String rep;
                 rep = hashQuestion.get(chatmsg.msg);
@@ -228,7 +236,7 @@ public class SerIAC extends javax.swing.JFrame {
                 if(rep != null)
                     chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, rep);
                 else
-                    chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, "ERREUR QUESTION");
+                    chatrep = new IACOPmsg(IACOP.ANSWER_QUESTION, "ERREUR QUESTION car "+rep);
                 ser.write(chatrep, msg.getAddress(), msg.getPort());
             }
             if(chatmsg.code == IACOP.POST_EVENT)
