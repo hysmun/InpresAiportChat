@@ -56,3 +56,7 @@ hs_err_pid*
 /Java/InpresAirportChat/nbproject/private/
 /Java/InpresAirportChat/build/
 /Java/InpresAirportChat/dist/
+
+*.o
+Application_CIAChat
+client.conf
