@@ -209,11 +209,13 @@ public class SerIAC extends javax.swing.JFrame {
                 else
                 {
                     try {
+                        System.err.println("connection unix");
                         //partie connection unix
                         StringTokenizer st = new StringTokenizer(msg.msg, "|");
                         String login = st.nextToken();
                         String mdp = st.nextToken();
                         String mdpToTest = (String) hashLogin.get(login);
+                        System.err.println("login="+login+"\tmdp="+mdp);
                         if(mdp.equals(mdpToTest))
                         {
                             write(msg.toShow());

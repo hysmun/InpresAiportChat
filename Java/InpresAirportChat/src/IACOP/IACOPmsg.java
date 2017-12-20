@@ -58,6 +58,8 @@ public class IACOPmsg {
             tmp+="Question + "+msg;
         if(code == IACOP.POST_EVENT)
             tmp+=""+msg;
+        if(code == IACOP.LOGIN_UNIX)
+            tmp+=""+msg;
         return tmp;
     }
     
