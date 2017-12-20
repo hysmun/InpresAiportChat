@@ -216,7 +216,9 @@ int Connection()
 	cout <<strlen(msgToSend)<<"tcp send:"<<msgToSend<<endl;
 	
 	read(handleSocket, &taille, sizeof(int));
+	cout <<"taille : " << taille << endl;
 	read(handleSocket, &type, sizeof(int));
+	cout <<"type : " << type << endl;
 	buf = receiveSize(handleSocket,taille);
 	
 	cout << "message recu du login : "<<buf<<endl;
