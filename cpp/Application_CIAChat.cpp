@@ -215,7 +215,8 @@ int Connection()
 	write(handleSocket, &msgToSend, strlen(msgToSend));
 	cout <<strlen(msgToSend)<<"tcp send:"<<msgToSend<<endl;
 	
-	read(handleSocket, &taille, sizeof(int));
+	
+	read(handleSocket, &taille, 1);
 	cout <<"taille : " << taille << endl;
 	read(handleSocket, &type, sizeof(int));
 	cout <<"type : " << type << endl;
