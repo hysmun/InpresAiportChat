@@ -81,15 +81,15 @@ public class CliSerBase {
             {
                 System.out.println("Debut read TCP");
                 try {
-                taille = dis.readInt();
+                taille = dis.readByte();
                 //System.out.println(""+taille);
-                System.out.println("1"+taille);
+                System.out.println("1--"+taille);
                 type = dis.readInt();
                 //System.out.println(""+type);
-                System.out.println("2"+type);
+                System.out.println("2--"+type);
                 buf = new byte[taille];
                 dis.readFully(buf);
-                System.out.println("3");
+                System.out.println("3--"+new String(buf));
                 if(buf.length != 0)
                    block = false;
                 }
@@ -126,7 +126,7 @@ public class CliSerBase {
         byte[] buf = s.toByte();
         DatagramPacket paquet=null;
         try {
-            dos.writeInt(s.msg.getBytes().length);
+            dos.writeByte(s.msg.getBytes().length);
             //System.out.println(""+s.msg.getBytes().length);
             dos.writeInt(s.code);
             //System.out.println(""+s.code);
