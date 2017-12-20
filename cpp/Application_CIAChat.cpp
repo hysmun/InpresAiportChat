@@ -209,11 +209,11 @@ int Connection()
 	char *buf;
 	sprintf(msgToSend,"%s|%s",login.c_str(),mdp.c_str());
 	taille = strlen(msgToSend);
-	
-	write(handleSocket, &taille, sizeof(unsigned int));
-	write(handleSocket, &type, sizeof(unsigned int));
+	cout<<"sizeof int :"<<sizeof(int)<<endl;
+	write(handleSocket, &taille, sizeof(int));
+	write(handleSocket, &type, sizeof(int));
 	write(handleSocket, &msgToSend, strlen(msgToSend));
-	cout <<"tcp send:"<<msgToSend<<endl;
+	cout <<strlen(msgToSend)<<"tcp send:"<<msgToSend<<endl;
 	
 	read(handleSocket, &taille, sizeof(int));
 	read(handleSocket, &type, sizeof(int));
