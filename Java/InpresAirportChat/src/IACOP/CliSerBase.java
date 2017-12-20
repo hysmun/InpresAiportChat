@@ -81,13 +81,13 @@ public class CliSerBase {
             {
                 //System.out.println("Debut read TCP");
                 try {
-                taille = dis.readByte();
+                taille = dis.readInt();
                 //System.out.println(""+taille);
                 System.out.println("1--"+taille);
                 type = dis.readInt();
                 //System.out.println(""+type);
                 System.out.println("2--"+type);
-                buf = new byte[taille+3];
+                buf = new byte[taille];
                 dis.readFully(buf);
                 System.out.println("3--"+new String(buf));
                 if(buf.length != 0)
@@ -104,6 +104,60 @@ public class CliSerBase {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+    public String readTcpUnix()
+    {
+        byte[] buf = null;
+        boolean block = true;
+        int taille;
+        int type=0;
+        try {
+            while(block == true)
+            {
+                //System.out.println("Debut read TCP");
+                try {
+                taille = dis.readByte();
+                //System.out.println(""+taille);
+                System.out.println("1--"+taille);
+                type = dis.readByte();
+                //System.out.println(""+type);
+                System.out.println("2--"+type);
+                buf = new byte[taille];
+                dis.readFully(buf);
+                System.out.println("3--"+new String(buf));
+                if(buf.length != 0)
+                   block = false;
+                }
+                catch(EOFException e)
+                {}
+                catch(NullPointerException e)
+                {}
+            }
+            System.out.println("fin read tcp");
+            return ""+type+"#"+new String(buf);
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public int writeUnix(IACOPmsg s)
+    {
+        byte[] buf = s.toByte();
+        DatagramPacket paquet=null;
+        try {
+            dos.writeByte(s.msg.getBytes().length);
+            //System.out.println(""+s.msg.getBytes().length);
+            dos.writeByte(s.code);
+            //System.out.println(""+s.code);
+            dos.write(s.msg.getBytes());
+            //System.out.println(""+new String(s.msg.getBytes()));
+            dos.flush();
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return 1;
     }
     
     public DatagramPacket readUdp()
@@ -126,7 +180,7 @@ public class CliSerBase {
         byte[] buf = s.toByte();
         DatagramPacket paquet=null;
         try {
-            dos.writeByte(s.msg.getBytes().length);
+            dos.writeInt(s.msg.getBytes().length);
             //System.out.println(""+s.msg.getBytes().length);
             dos.writeInt(s.code);
             //System.out.println(""+s.code);

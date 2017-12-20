@@ -220,17 +220,17 @@ public class SerIAC extends javax.swing.JFrame {
                         {
                             write(msg.toShow());
                             msg = new IACOPmsg(IACOP.LOGIN_GROUP, "227.0.0.10|50001");
-                            ser.write(msg);
+                            ser.writeUnix(msg);
                         }
                         else
                         {
                             write(msg.toShow());
                             msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
-                            ser.write(msg);
+                            ser.writeUnix(msg);
                         }
                     } catch (NullPointerException e) {
                         msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
-                        ser.write(msg);
+                        ser.writeUnix(msg);
                     }
                     
                 }

@@ -59,7 +59,7 @@ public class IACOPmsg {
         if(code == IACOP.POST_EVENT)
             tmp+=""+msg;
         if(code == IACOP.LOGIN_UNIX)
-            tmp+=""+msg;
+            tmp+="UNIX"+msg;
         return tmp;
     }
     
