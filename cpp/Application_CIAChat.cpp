@@ -174,12 +174,13 @@ void menuCIAChat()
 			case 'm':
 				cin >> msg;
 				sprintf(buf, "%d#%s", POST_EVENT, msg );
-			   ret =sendto(handleSocket, buf, 256, 0,(const sockaddr*)adresseUDP, sizeof(adresseUDP));
+			   ret = sendto(udpSocket, buf, 256, 0,(const sockaddr*)adresseUDP2, sizeof(adresseUDP));
+			   perror("erreur send to ");
 				break;
 			case 'l':
 				cin >> msg;
 				sprintf(buf, "%d#%s", POST_QUESTION, msg );
-				ret =sendto(handleSocket, buf, 256, 0, (const sockaddr*)adresseUDP, sizeof(adresseUDP));
+				ret = sendto(udpSocket, buf, 256, 0, (const sockaddr*)adresseUDP2, sizeof(adresseUDP));
 				break;
 			case 'q':
 				break;
@@ -194,13 +195,31 @@ void menuCIAChat()
 int Connection()
 {
 	//
+	int taille = 0;
+	int type = LOGIN_UNIX;
+	int tmp=0;
+	
 	cout<<endl<<"login :";
 	cin >> login;
 	cout<<endl<<"mot de passe :";
 	cin >> mdp;
 	
 	//
-	char *msgToSend;
+	char msgToSend[2048];
+	char *buf;
+	sprintf(msgToSend,"%s|%s",login.c_str(),mdp.c_str());
+	taille = strlen(msgToSend);
+	
+	write(handleSocket, &taille, sizeof(unsigned int));
+	write(handleSocket, &type, sizeof(unsigned int));
+	write(handleSocket, &msgToSend, strlen(msgToSend));
+	cout <<"tcp send:"<<msgToSend<<endl;
+	
+	read(handleSocket, &taille, sizeof(int));
+	read(handleSocket, &type, sizeof(int));
+	buf = receiveSize(handleSocket,taille);
+	
+	cout << "message recu du login : "<<buf<<endl;
 	
 	udpSocket = ClientInitUDP(50001, "227.0.0.10",adresseUDP);
 	
