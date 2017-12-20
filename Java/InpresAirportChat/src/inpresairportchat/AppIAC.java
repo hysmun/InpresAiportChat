@@ -194,7 +194,7 @@ public class AppIAC extends javax.swing.JFrame {
         IACOPmsg msg = null;
         if(msgTF.getText().charAt(0) == '?')
         {
-            msg = new IACOPmsg(IACOP.POST_QUESTION,msgTF.getText().substring(1, msgTF.getText().length()));
+            msg = new IACOPmsg(IACOP.POST_QUESTION,msgTF.getText().substring(1, msgTF.getText().length())+"$");
         }
         else
             msg = new IACOPmsg(IACOP.POST_EVENT,loginTF.getText()+": "+msgTF.getText());
