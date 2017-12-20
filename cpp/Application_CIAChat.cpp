@@ -155,8 +155,8 @@ void menuCIAChat()
 	memset(buf,0, 256);
 	adresseUDP2 = (struct sockaddr_in *)malloc(sizeof( struct sockaddr_in));
 	memcpy(adresseUDP2, adresseUDP, sizeof(struct sockaddr_in));
-	adresseUDP2->sin_addr.s_addr = inet_addr(ip.c_str());
-	adresseUDP2->sin_port = htons(50004);
+	adresseUDP2->sin_addr.s_addr = inet_addr("227.0.0.10");
+	adresseUDP2->sin_port = htons(50001);
 	while(choix != 'q')
 	{
 		//affichage menu
@@ -174,13 +174,13 @@ void menuCIAChat()
 			case 'm':
 				cin >> msg;
 				sprintf(buf, "%d#%s", POST_EVENT, msg );
-			   ret = sendto(udpSocket, buf, 256, 0,(const sockaddr*)adresseUDP2, sizeof(adresseUDP));
+			   ret = sendto(udpSocket, buf, 256, 0,(struct sockaddr*)adresseUDP2, sizeof(struct sockaddr));
 			   perror("erreur send to ");
 				break;
 			case 'l':
 				cin >> msg;
 				sprintf(buf, "%d#%s", POST_QUESTION, msg );
-				ret = sendto(udpSocket, buf, 256, 0, (const sockaddr*)adresseUDP2, sizeof(adresseUDP));
+				ret = sendto(udpSocket, buf, 256, 0, (struct sockaddr*)adresseUDP2, sizeof(struct sockaddr));
 				break;
 			case 'q':
 				break;
