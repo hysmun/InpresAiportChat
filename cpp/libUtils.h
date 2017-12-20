@@ -14,6 +14,7 @@ typedef enum TypeRequete
 	POST_QUESTION,
 	ANSWER_QUESTION,
 	POST_EVENT,
+	LOGIN_UNIX,
 	LOGIN_NOK=301,
 }TypeRequete;
 
