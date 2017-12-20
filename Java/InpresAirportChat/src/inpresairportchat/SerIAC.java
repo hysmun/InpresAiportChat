@@ -168,41 +168,69 @@ public class SerIAC extends javax.swing.JFrame {
             tmp = ser.readTcp();
             write("message lu");
             msg = new IACOPmsg(tmp);
-            if(msg.code == IACOP.LOGIN_GROUP){
-                try {
-                    StringTokenizer st = new StringTokenizer(msg.msg, "|");
-                    String login = st.nextToken();
+            if(msg.code == IACOP.LOGIN_GROUP || msg.code == IACOP.LOGIN_UNIX){
+                if(msg.code == IACOP.LOGIN_GROUP){
+                    try {
+                        StringTokenizer st = new StringTokenizer(msg.msg, "|");
+                        String login = st.nextToken();
 
-                    long temps = Long.parseLong(st.nextToken());
-                    double alea = Double.parseDouble(st.nextToken());
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    DataOutputStream bdos = new DataOutputStream(baos);
-                    bdos.writeLong(temps);
-                    bdos.writeDouble(alea);
-                    String mdp = (String) hashLogin.get(login);
-                    MessageDigest md = MessageDigest.getInstance("MD5");
-                    md.update(mdp.getBytes());
-                    md.update(baos.toByteArray());
-                    String digest = new String(md.digest());
-                
-                    if (digest.equals(st.nextToken())) {
-                        write(msg.toShow());
-                        msg = new IACOPmsg(IACOP.LOGIN_GROUP, "227.0.0.10|50001");
+                        long temps = Long.parseLong(st.nextToken());
+                        double alea = Double.parseDouble(st.nextToken());
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        DataOutputStream bdos = new DataOutputStream(baos);
+                        bdos.writeLong(temps);
+                        bdos.writeDouble(alea);
+                        String mdp = (String) hashLogin.get(login);
+                        MessageDigest md = MessageDigest.getInstance("MD5");
+                        md.update(mdp.getBytes());
+                        md.update(baos.toByteArray());
+                        String digest = new String(md.digest());
+
+                        if (digest.equals(st.nextToken())) {
+                            write(msg.toShow());
+                            msg = new IACOPmsg(IACOP.LOGIN_GROUP, "227.0.0.10|50001");
+                            ser.write(msg);
+                        }
+                        else
+                        {
+                            write(msg.toShow());
+                            msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                            ser.write(msg);
+                        }
+                    } catch (NullPointerException e) {
+                        msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
                         ser.write(msg);
+                    } catch (IOException ex) {
+                        Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (NoSuchAlgorithmException ex) {
+                        Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    else
-                    {
-                        write(msg.toShow());
+                }
+                else
+                {
+                    try {
+                        //partie connection unix
+                        StringTokenizer st = new StringTokenizer(msg.msg, "|");
+                        String login = st.nextToken();
+                        String mdp = st.nextToken();
+                        String mdpToTest = (String) hashLogin.get(login);
+                        if(mdp.equals(mdpToTest))
+                        {
+                            write(msg.toShow());
+                            msg = new IACOPmsg(IACOP.LOGIN_GROUP, "227.0.0.10|50001");
+                            ser.write(msg);
+                        }
+                        else
+                        {
+                            write(msg.toShow());
+                            msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
+                            ser.write(msg);
+                        }
+                    } catch (NullPointerException e) {
                         msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
                         ser.write(msg);
                     }
-                } catch (NullPointerException e) {
-                    msg = new IACOPmsg(IACOP.LOGIN_NOK, "NON");
-                    ser.write(msg);
-                } catch (IOException ex) {
-                    Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (NoSuchAlgorithmException ex) {
-                    Logger.getLogger(SerIAC.class.getName()).log(Level.SEVERE, null, ex);
+                    
                 }
             }
             else
