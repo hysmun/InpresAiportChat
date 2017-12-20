@@ -87,7 +87,7 @@ public class CliSerBase {
                 type = dis.readInt();
                 //System.out.println(""+type);
                 System.out.println("2--"+type);
-                buf = new byte[taille];
+                buf = new byte[taille+3];
                 dis.readFully(buf);
                 System.out.println("3--"+new String(buf));
                 if(buf.length != 0)
