@@ -15,5 +15,5 @@ public class IACOP {
     public static int ANSWER_QUESTION   =   3;
     public static int POST_EVENT        =   4;
     public static int LOGIN_UNIX       =   5;
-    public static int LOGIN_NOK         =   301;
+    public static int LOGIN_NOK         =   101;
 }

@@ -255,7 +255,8 @@ public class SerIAC extends javax.swing.JFrame {
             String tmp;
             msg = ser.readUdp();
             //write("Recu : "+new String(msg.getData()));
-            chatmsg = new IACOPmsg(new String(msg.getData()).substring(0, msg.getLength()));
+            StringTokenizer strTok = new StringTokenizer(new String(msg.getData()), "$");
+            chatmsg = new IACOPmsg(new String(strTok.nextToken()));
             if(chatmsg.code == IACOP.POST_QUESTION)
             {
                 write("POST_QUESTION:"+chatmsg.msg+"|");
