@@ -210,7 +210,13 @@ int Connection()
 	sprintf(msgToSend,"%s|%s",login.c_str(),mdp.c_str());
 	taille = strlen(msgToSend);
 	cout<<"sizeof int :"<<sizeof(int)<<endl;
+	write(handleSocket, &tmp, 1);
+	write(handleSocket, &tmp, 1);
+	write(handleSocket, &tmp, 1);
 	write(handleSocket, &taille, 1);
+	write(handleSocket, &tmp, 1);
+	write(handleSocket, &tmp, 1);
+	write(handleSocket, &tmp, 1);
 	write(handleSocket, &type, 1);
 	write(handleSocket, &msgToSend, strlen(msgToSend));
 	cout <<strlen(msgToSend)<<"tcp send:"<<msgToSend<<endl;
