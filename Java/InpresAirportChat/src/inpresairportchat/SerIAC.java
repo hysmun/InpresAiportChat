@@ -187,7 +187,7 @@ public class SerIAC extends javax.swing.JFrame {
                 
                     if (digest.equals(st.nextToken())) {
                         write(msg.toShow());
-                        msg = new IACOPmsg(IACOP.LOGIN_GROUP, "127.0.0.1|50001");
+                        msg = new IACOPmsg(IACOP.LOGIN_GROUP, "227.0.0.10|50001");
                         ser.write(msg);
                     }
                     else

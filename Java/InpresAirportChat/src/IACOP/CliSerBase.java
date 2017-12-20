@@ -79,13 +79,17 @@ public class CliSerBase {
         try {
             while(block == true)
             {
+                System.out.println("Debut read TCP");
                 try {
                 taille = dis.readInt();
                 //System.out.println(""+taille);
+                System.out.println("1"+taille);
                 type = dis.readInt();
                 //System.out.println(""+type);
+                System.out.println("2"+type);
                 buf = new byte[taille];
                 dis.readFully(buf);
+                System.out.println("3");
                 if(buf.length != 0)
                    block = false;
                 }
@@ -94,6 +98,7 @@ public class CliSerBase {
                 catch(NullPointerException e)
                 {}
             }
+            System.out.println("fin read tcp");
             return ""+type+"#"+new String(buf);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
