@@ -79,7 +79,7 @@ public class CliSerBase {
         try {
             while(block == true)
             {
-                System.out.println("Debut read TCP");
+                //System.out.println("Debut read TCP");
                 try {
                 taille = dis.readByte();
                 //System.out.println(""+taille);
