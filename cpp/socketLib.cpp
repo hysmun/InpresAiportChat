@@ -172,35 +172,52 @@ int ClientInitUDP(int pport, string ip, struct sockaddr_in *adresseSocket)
 	//
 	struct hostent *infosHost;
 	struct in_addr adresseIP;
+	struct ip_mreq group;
+	unsigned char ttl =3;
+	unsigned char one =1;
 	//struct sockaddr_in adresseSocket;
 	int handleSocket;
 	
 	//creation socket
-	if((handleSocket = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))==-1)
+	if((handleSocket = socket(AF_INET,SOCK_DGRAM,0))==-1)
 	{
 		// throw
-		throw SocketException(SocketException::ERRORINIT);
+		throw SocketException("erreur socket",SocketException::ERRORINIT);
 	}
 	
-	//acquisition info ordi
-	if((infosHost = gethostbyname(ip.c_str()))==0)
-	{
-		//throw
-		throw SocketException(SocketException::ERRORINIT);
-	}
-	memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);
+	int yes = 1;
+	if (setsockopt(handleSocket,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
+    perror("Reusing ADDR failed");
+    exit(1);
+    }
 	
 	
 	
 	//prepa struct sockaddr_in
 	memset(adresseSocket, 0, sizeof(struct sockaddr_in));
+	memset(&adresseIP, 0, sizeof(struct in_addr));
 	adresseSocket->sin_family = AF_INET;
 	adresseSocket->sin_port = htons(pport);
-	if(inet_aton(ip.c_str() , &adresseSocket->sin_addr) == 0) 
-   {
-		fprintf(stderr, "inet_aton() failed\n");
+	adresseSocket->sin_addr.s_addr = htonl(INADDR_ANY);
+	 if(bind(handleSocket, (struct sockaddr*)adresseSocket, sizeof(*adresseSocket)) < 0)
+	{
+		perror("bind");
+		throw SocketException("erreur bind",SocketException::ERRORINIT);
+	}
+	adresseIP.s_addr = INADDR_ANY;
+	
+	setsockopt(handleSocket, IPPROTO_IP, IP_MULTICAST_IF, &adresseIP, sizeof(struct in_addr));
+	setsockopt(handleSocket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl,sizeof(unsigned char));
+	setsockopt(handleSocket, IPPROTO_IP, IP_MULTICAST_LOOP, &one, sizeof(unsigned char));
+	 group.imr_multiaddr.s_addr = inet_addr(ip.c_str());
+
+	group.imr_interface.s_addr = htonl(INADDR_ANY);
+
+	if(setsockopt(handleSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0)
+	{
+		perror("Adding multicast group error");
 		exit(1);
-   }
+	}
 	
 	cout << "clien: "<<inet_ntoa(adresseIP)<<":"<<pport<<endl;
 	

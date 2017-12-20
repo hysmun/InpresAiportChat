@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <iostream>
 #include <fstream>
+#include <string.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -28,6 +29,7 @@ void HandlerSIGINT(int s);
 void menuCIAChat();
 int Connection();
 
+pthread_t tidRecv;
 void *thReceiv(void*);
 
 char *msgSend;
@@ -45,8 +47,10 @@ int conOK = 0;
 int thReceivState=FALSE;
 string login;
 string mdp;
+struct in_addr localInterface;
 struct sockaddr_in *adresseSocket;
 struct sockaddr_in *adresseUDP;
+struct sockaddr_in *adresseUDP2;
 
 int main(int argc, char *argv[])
 {
@@ -94,6 +98,8 @@ int main(int argc, char *argv[])
 		ClientConnect(handleSocket, adresseSocket);
 		
 		cout <<"client connecter !!!!!!"<<endl;	
+		
+		pthread_create(&tidRecv, NULL, thReceiv, NULL);
 		
 		while(1)
 		{
@@ -143,16 +149,44 @@ void menuCIAChat()
 {
 	char choix='i';
 	thReceivState = TRUE;
+	char msg[256];
+	char buf[256];
+	int ret;
+	memset(buf,0, 256);
+	adresseUDP2 = (struct sockaddr_in *)malloc(sizeof( struct sockaddr_in));
+	memcpy(adresseUDP2, adresseUDP, sizeof(struct sockaddr_in));
+	adresseUDP2->sin_addr.s_addr = inet_addr(ip.c_str());
+	adresseUDP2->sin_port = htons(50004);
 	while(choix != 'q')
 	{
 		//affichage menu
 		cout<<"menu :"<<endl;
+		cout << "m pour envoyer un message"<<endl;
+		cout <<" l pour une question "<<endl;
+		cout << "q pour quitter "<<endl;
 		
 		//choix
 		cin >> choix;
-		
+		cout << "choix :"<<choix<<endl;
 		//execution 
-		
+		switch(choix)
+		{
+			case 'm':
+				cin >> msg;
+				sprintf(buf, "%d#%s", POST_EVENT, msg );
+			   ret =sendto(handleSocket, buf, 256, 0,(const sockaddr*)adresseUDP, sizeof(adresseUDP));
+				break;
+			case 'l':
+				cin >> msg;
+				sprintf(buf, "%d#%s", POST_QUESTION, msg );
+				ret =sendto(handleSocket, buf, 256, 0, (const sockaddr*)adresseUDP, sizeof(adresseUDP));
+				break;
+			case 'q':
+				break;
+			
+		}
+		cout <<ret<< "msg envoyer "<<buf<<endl;
+		memset(buf,0, 256);
 	}
 	return;
 }
@@ -178,16 +212,33 @@ void *thReceiv(void*)
 	//
 	char buf[256];
 	int slen = sizeof(struct sockaddr_in);
+	char *msg;
+	char *type;
+	memset(buf,0, 256);
+	memset(msg, 0, 256);
 	while(1)
 	{
+		//cout << "debut th"<<endl;
 		while(thReceivState == TRUE)
 		{
-			if (recvfrom(udpSocket, buf, BUFLEN, 0, (struct sockaddr *)adresseUDP, (socklen_t *)&slen) == -1)
-        {
-            cout <<endl<< "erreur receive !!"<<endl<<endl;
-        }
-        cout<<"Message recu : "<<buf<<endl;
+			if (read(udpSocket, buf, BUFLEN ) == -1)
+			{
+				cout <<endl<< "erreur receive !!"<<endl<<endl;
+			}
+			else
+			{
+				type = strtok(buf,"#");
+				cout<<endl;
+				if(atoi(type) == POST_QUESTION)
+					cout<<"Question";
+				if(atoi(type) == ANSWER_QUESTION)
+					cout<<"Answer";
+				msg = (char*) strtok(NULL,"#");
+				cout<<"Message recu : "<<msg<<endl;
+				memset(buf,0, 256);
+			}
 		}
+		//cout << "waitTh"<<endl;
 		waitTime(1, 0);
 	}
 }
