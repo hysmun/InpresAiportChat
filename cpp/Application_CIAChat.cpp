@@ -234,7 +234,6 @@ void *thReceiv(void*)
 	char *msg;
 	char *type;
 	memset(buf,0, 256);
-	memset(msg, 0, 256);
 	while(1)
 	{
 		//cout << "debut th"<<endl;
