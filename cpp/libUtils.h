@@ -6,7 +6,7 @@ public static int LOGIN_GROUP       =   1;
  public static int POST_QUESTION     =   2;
  public static int ANSWER_QUESTION   =   3;
  public static int POST_EVENT        =   4;
-public static int LOGIN_NOK = 301;
+public static int LOGIN_NOK = 101;
 */
 typedef enum TypeRequete 
 {
@@ -15,7 +15,7 @@ typedef enum TypeRequete
 	ANSWER_QUESTION,
 	POST_EVENT,
 	LOGIN_UNIX,
-	LOGIN_NOK=301,
+	LOGIN_NOK=101,
 }TypeRequete;
 
 int waitTime(int sec, long nsec);

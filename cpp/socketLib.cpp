@@ -170,7 +170,6 @@ int ClientInit(int pport, string ip, struct sockaddr_in *adresseSocket)
 int ClientInitUDP(int pport, string ip, struct sockaddr_in *adresseSocket)
 {
 	//
-	struct hostent *infosHost;
 	struct in_addr adresseIP;
 	struct ip_mreq group;
 	unsigned char ttl =3;
@@ -219,7 +218,7 @@ int ClientInitUDP(int pport, string ip, struct sockaddr_in *adresseSocket)
 		exit(1);
 	}
 	
-	cout << "clien: "<<inet_ntoa(adresseIP)<<":"<<pport<<endl;
+	//cout << "clien: "<<inet_ntoa(adresseIP)<<":"<<pport<<endl;
 	
 	return handleSocket;
 }

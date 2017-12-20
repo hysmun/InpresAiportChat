@@ -97,14 +97,14 @@ int main(int argc, char *argv[])
 		cout << "client connect"<<endl;
 		ClientConnect(handleSocket, adresseSocket);
 		
-		cout <<"client connecter !!!!!!"<<endl;	
+		cout <<"client connecté"<<endl;	
 		
 		pthread_create(&tidRecv, NULL, thReceiv, NULL);
 		
 		while(1)
 		{
-			cout <<"1-connection"<<endl;
-			cout <<"autre fin programme"<<endl;
+			cout <<"1\t- connection"<<endl;
+			cout <<"autre\t- fin programme"<<endl;
 			cin >> choix;
 			switch(choix)
 			{
@@ -115,6 +115,13 @@ int main(int argc, char *argv[])
 					{
 						cout <<"connection OK"<<endl;
 						menuCIAChat();
+					}
+					else
+					{
+						cout <<"connection NOK"<<endl;
+						CloseSocket(handleSocket);
+						handleSocket=0;
+						exit(0);
 					}
 					break;
 				default:
@@ -151,7 +158,6 @@ void menuCIAChat()
 	thReceivState = TRUE;
 	char msg[256];
 	char buf[256];
-	int ret;
 	memset(buf,0, 256);
 	adresseUDP2 = (struct sockaddr_in *)malloc(sizeof( struct sockaddr_in));
 	memcpy(adresseUDP2, adresseUDP, sizeof(struct sockaddr_in));
@@ -162,31 +168,31 @@ void menuCIAChat()
 		//affichage menu
 		cout<<"menu :"<<endl;
 		cout << "m pour envoyer un message"<<endl;
-		cout <<" l pour une question "<<endl;
+		cout << "l pour une question "<<endl;
 		cout << "q pour quitter "<<endl;
 		
 		//choix
 		cin >> choix;
-		cout << "choix :"<<choix<<endl;
+		//cout << "choix :"<<choix<<endl;
 		//execution 
 		switch(choix)
 		{
 			case 'm':
 				cin >> msg;
 				sprintf(buf, "%d#%s", POST_EVENT, msg );
-			   ret = sendto(udpSocket, buf, 256, 0,(struct sockaddr*)adresseUDP2, sizeof(struct sockaddr));
-			   perror("erreur send to ");
+			   sendto(udpSocket, buf, 256, 0,(struct sockaddr*)adresseUDP2, sizeof(struct sockaddr));
+			   //perror("erreur send to ");
 				break;
 			case 'l':
 				cin >> msg;
-				sprintf(buf, "%d#%s", POST_QUESTION, msg );
-				ret = sendto(udpSocket, buf, 256, 0, (struct sockaddr*)adresseUDP2, sizeof(struct sockaddr));
+				sprintf(buf, "%d#%s$", POST_QUESTION, msg );
+				sendto(udpSocket, buf, 256, 0, (struct sockaddr*)adresseUDP2, sizeof(struct sockaddr));
 				break;
 			case 'q':
 				break;
 			
 		}
-		cout <<ret<< "msg envoyer "<<buf<<endl;
+		//cout <<ret<< "msg envoyer "<<buf<<endl;
 		memset(buf,0, 256);
 	}
 	return;
@@ -205,11 +211,10 @@ int Connection()
 	cin >> mdp;
 	
 	//
-	char msgToSend[2048];
 	char *buf;
+	char msgToSend[2048];
 	sprintf(msgToSend,"%s|%s",login.c_str(),mdp.c_str());
 	taille = strlen(msgToSend);
-	cout<<"sizeof int :"<<sizeof(int)<<endl;
 	write(handleSocket, &tmp, 1);
 	write(handleSocket, &tmp, 1);
 	write(handleSocket, &tmp, 1);
@@ -219,16 +224,20 @@ int Connection()
 	write(handleSocket, &tmp, 1);
 	write(handleSocket, &type, 1);
 	write(handleSocket, &msgToSend, strlen(msgToSend));
-	cout <<strlen(msgToSend)<<"tcp send:"<<msgToSend<<endl;
-	
+	//cout <<strlen(msgToSend)<<"tcp send:"<<msgToSend<<endl;
 	
 	read(handleSocket, &taille, 1);
-	cout <<"taille : " << taille << endl;
+	//cout <<"taille : " << taille << endl;
 	read(handleSocket, &type, 1);
 	cout <<"type : " << type << endl;
 	buf = receiveSize(handleSocket,taille);
 	
+	if(type == LOGIN_NOK)
+	{
+		return 0;
+	}
 	cout << "message recu du login : "<<buf<<endl;
+	
 	
 	udpSocket = ClientInitUDP(50001, "227.0.0.10",adresseUDP);
 	
@@ -239,7 +248,6 @@ void *thReceiv(void*)
 {
 	//
 	char buf[256];
-	int slen = sizeof(struct sockaddr_in);
 	char *msg;
 	char *type;
 	memset(buf,0, 256);
@@ -257,9 +265,9 @@ void *thReceiv(void*)
 				type = strtok(buf,"#");
 				cout<<endl;
 				if(atoi(type) == POST_QUESTION)
-					cout<<"Question";
+					cout<<"Question -- ";
 				if(atoi(type) == ANSWER_QUESTION)
-					cout<<"Answer";
+					cout<<"Answer -- ";
 				msg = (char*) strtok(NULL,"#");
 				cout<<"Message recu : "<<msg<<endl;
 				memset(buf,0, 256);
